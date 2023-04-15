@@ -1,0 +1,37 @@
+name: Build JSON lib
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            lcov \
+            make \
+            ;
+      - name: Build
+        run: |
+          CXX=g++
+          CC=gcc
+          DO_Coverage=ON
+          BUILD_TOOL="Unix Makefiles"
+          BUILD_TYPE=Debug
+          LIB_TYPE=static
+          source .github/workflows/build.sh
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          gcov: true
+          gcov_ignore: /usr/*
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
